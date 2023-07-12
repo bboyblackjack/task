@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import {
+    ForbiddenException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
@@ -16,6 +20,24 @@ export class WalletService {
         private readonly _walletRepository: Repository<WalletsEntity>,
     ) {}
 
+    private async _checkWalletAccess(walletId: number): Promise<WalletsEntity> {
+        const wallet = await this._walletRepository.findOne({
+            where: { id: walletId },
+        })
+
+        if (!wallet) {
+            throw new NotFoundException('Wallet not found')
+        }
+
+        if (wallet.isClosed) {
+            throw new NotFoundException(
+                'Wallet is closed. Operation unavailable!',
+            )
+        }
+
+        return wallet
+    }
+
     async getOneWallet(id: number): Promise<WalletsEntity | undefined> {
         return await this._walletRepository.findOne({ where: { id } })
     }
@@ -29,6 +51,8 @@ export class WalletService {
     }
 
     async deposit(walletInput: WalletInput): Promise<number> {
+        await this._checkWalletAccess(walletInput.walletId)
+
         const transaction = await this._transactionsService.createTransaction({
             ...walletInput,
             type: TransactionType.IN,
@@ -46,6 +70,17 @@ export class WalletService {
     }
 
     async withdraw(walletInput: WalletInput): Promise<number> {
+        const wallet = await this._checkWalletAccess(walletInput.walletId)
+
+        const balance = wallet.incoming - wallet.outgoing
+
+        if (balance < walletInput.amount) {
+            throw new ForbiddenException(
+                'The outgoing amount cannot exceed ' +
+                    'the balance in the wallet',
+            )
+        }
+
         const transaction = await this._transactionsService.createTransaction({
             ...walletInput,
             type: TransactionType.OUT,
@@ -63,6 +98,8 @@ export class WalletService {
     }
 
     async close(walletId: number): Promise<boolean> {
+        await this._checkWalletAccess(walletId)
+
         const status = await this._walletRepository.update(
             { id: walletId },
             { isClosed: true },
