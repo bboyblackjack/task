@@ -26,7 +26,7 @@ export class WalletsEntity {
 
     @Field({ nullable: true, defaultValue: 0 })
     @Column({ nullable: true, default: 0 })
-    ingoing: number
+    incoming: number
 
     @Field({ nullable: true, defaultValue: 0 })
     @Column({ nullable: true, default: 0 })
