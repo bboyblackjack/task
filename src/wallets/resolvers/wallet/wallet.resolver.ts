@@ -1,8 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
 
-// import {UserEntity} from "../../../users/entities/user.entity";
-// import {CreateUserInput} from "../../../users/inputs/create-user.input";
-// import {UpdateUserInput} from "../../../users/inputs/update-user.input";
 import { WalletsEntity } from '../../entities/wallets.entity'
 import { CreateWalletInput } from '../../inputs/create-wallet.input'
 import { WalletInput } from '../../inputs/wallet.input'
