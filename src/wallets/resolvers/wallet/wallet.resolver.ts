@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
+import {Args, Int, Mutation, Query, Resolver} from '@nestjs/graphql'
 
 import { WalletsEntity } from '../../entities/wallets.entity'
 import { CreateWalletInput } from '../../inputs/create-wallet.input'
@@ -16,12 +16,12 @@ export class WalletResolver {
         return await this._walletService.createWallet(createWalletInput)
     }
 
-    @Mutation(() => Number)
+    @Mutation(() => Int)
     async deposit(@Args('deposit') walletInput: WalletInput): Promise<number> {
         return await this._walletService.deposit(walletInput)
     }
 
-    @Mutation(() => Number)
+    @Mutation(() => Int)
     async withdraw(
         @Args('withdraw') walletInput: WalletInput,
     ): Promise<number> {
@@ -39,7 +39,7 @@ export class WalletResolver {
     }
 
     @Query(() => WalletsEntity)
-    async wallet(@Args('id') id: number): Promise<WalletsEntity | undefined> {
+    async wallet(@Args('id', {type: () => Int}) id: number): Promise<WalletsEntity | undefined> {
         return await this._walletService.getOneWallet(id)
     }
 }

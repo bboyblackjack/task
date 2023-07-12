@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
+import {Args, Int, Mutation, Query, Resolver} from '@nestjs/graphql'
 
 import { TransactionsEntity } from '../../entities/transactions.entity'
 import { CreateTransactionInput } from '../../inputs/create-transaction.input'
@@ -20,14 +20,14 @@ export class TransactionResolver {
 
     @Query(() => TransactionsEntity)
     async transaction(
-        @Args('id') id: number,
+        @Args('id', {type: () => Int}) id: number,
     ): Promise<TransactionsEntity | undefined> {
         return await this._transactionService.getOneTransaction(id)
     }
 
     @Query(() => [TransactionsEntity])
     async transactions(
-        @Args('id', { nullable: true }) id?: number,
+        @Args('id', { nullable: true, type: () => Int }) id?: number,
     ): Promise<TransactionsEntity[]> {
         return await this._transactionService.getAllTransactions(id)
     }
